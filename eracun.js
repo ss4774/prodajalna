@@ -1,3 +1,7 @@
+//http://stackoverflow.com/questions/11563638/javascript-get-input-text-value
+//http://stackoverflow.com/questions/5700471/set-value-of-input-using-javascript-function
+//http://stackoverflow.com/questions/19035373/how-do-i-redirect-in-expressjs-while-passing-some-context
+//http://blog.modulus.io/nodejs-and-sqlite
 //Priprava knjižnic
 var formidable = require("formidable");
 var util = require('util');
@@ -211,8 +215,43 @@ streznik.post('/prijava', function(zahteva, odgovor) {
       //TODO: add fields and finalize
       //stmt.run("", "", "", "", "", "", "", "", "", "", "", 3); 
       //stmt.finalize();
+      /*var firstname = document.getElementById("FirstName").value;
+      var lastname = document.getElementById("LastName").value;
+      var company = document.getElementById("Company").value;
+      var address = document.getElementById("Address").value;
+      var city = document.getElementById("City").value;
+      var state = document.getElementById("State").value;
+      var country = document.getElementById("Country").value;
+      var postalcode = document.getElementById("PostalCode").value;
+      var phone = document.getElementById("Phone").value;
+      var fax = document.getElementById("Fax").value;
+      var email = document.getElementById("Email").value;*/
+      var firstname = polja.FirstName;
+      var lastname = polja.LastName;
+      var company = polja.Company;
+      var address = polja.Address;
+      var city = polja.City;
+      var state = polja.State;
+      var country = polja.Country;
+      var postalcode = polja.PostalCode;
+      var phone = polja.Phone;
+      var fax = polja.Fax;
+      var email = polja.Email;
+      var supportrepid = 3;
+      //stmt.run("sadsa", "das", "dsa", "dsa", "dsa", "das", "das", "das", "dsa", "das", "das", 3); 
+      stmt.run(firstname, lastname, company, address, city, state, country, postalcode, phone, fax, email, supportrepid);
+      stmt.finalize();
+      
     } catch (err) {
       napaka2 = true;
+    }
+
+    if(napaka2){
+      //document.getElementById("sporocilo").value = "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.";
+      odgovor.redirect('/prijava?napaka2=true');
+    }else{
+      //document.getElementById("sporocilo").value = "Stranka je bila uspešno registrirana.";
+      odgovor.redirect('/prijava?napaka2=false');  
     }
   
     odgovor.end();
@@ -221,9 +260,18 @@ streznik.post('/prijava', function(zahteva, odgovor) {
 
 // Prikaz strani za prijavo
 streznik.get('/prijava', function(zahteva, odgovor) {
+  
   vrniStranke(function(napaka1, stranke) {
       vrniRacune(function(napaka2, racuni) {
-        odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        //odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        var napaka3 = zahteva.query.napaka2;
+        if(napaka3 == "true"){
+          odgovor.render('prijava', {sporocilo: "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.", seznamStrank: stranke, seznamRacunov: racuni}); 
+        }else if(napaka3 == "false"){
+          odgovor.render('prijava', {sporocilo: "Stranka je bila uspešno registrirana.", seznamStrank: stranke, seznamRacunov: racuni}); 
+        }else{
+          odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        }
       }) 
     });
 })
