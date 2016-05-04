@@ -160,11 +160,28 @@ streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
       odgovor.send("<p>V košarici nimate nobene pesmi, \
         zato računa ni mogoče pripraviti!</p>");
     } else {
-      odgovor.setHeader('content-type', 'text/xml');
+      // IV. del
+      /*odgovor.setHeader('content-type', 'text/xml');
       odgovor.render('eslog', {
         vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
         postavkeRacuna: pesmi
-      })  
+      })*/
+      strankaIzRacuna(zahteva.session.strankaId, function(podrobnosti) {
+          if (!podrobnosti) {
+            odgovor.sendStatus(500);
+          } else if (podrobnosti.length == 0) {
+            odgovor.send("<p>V košarici nimate nobene pesmi, \
+              zato računa ni mogoče pripraviti!</p>");
+          } else {
+              odgovor.setHeader('content-type', 'text/xml');
+              odgovor.render('eslog', {
+                vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
+                postavkeRacuna: pesmi,
+                postavkeRacunaPodrobnosti: podrobnosti
+              })
+          }
+         
+        })
     }
   })
 })
@@ -233,6 +250,11 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   var form = new formidable.IncomingForm();
   
   form.parse(zahteva, function (napaka1, polja, datoteke) {
+    //IV. del
+    zahteva.session.strankaId = polja.seznamStrank;
+    console.log(zahteva.session.strankaId);
+    console.log(zahteva.session);
+    //
     odgovor.redirect('/')
   });
 })
