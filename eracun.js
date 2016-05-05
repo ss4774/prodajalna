@@ -46,17 +46,13 @@ function davcnaStopnja(izvajalec, zanr) {
 }
 
 
-//II. del
-var stranka = false;
-//
-
 // Prikaz seznama pesmi na strani
 streznik.get('/', function(zahteva, odgovor) {
   //II. del
   //session.var je undefind ce potece ali ni nastavleno direktno
   //console.log(stranka);
   //console.log(zahteva.session.stranka);
-  if(zahteva.session.stranka === undefined || zahteva.session.stranka == false){
+  if(zahteva.session.stranka === undefined){ //|| zahteva.session.stranka == false
     odgovor.redirect('/prijava');
   }else{//
     pb.all("SELECT Track.TrackId AS id, Track.Name AS pesem, \
@@ -247,7 +243,10 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   
   form.parse(zahteva, function (napaka1, polja, datoteke) {
     //II. del
-    zahteva.session.stranka = true;
+    //zahteva.session.regenerate();
+    zahteva.session.stranka = polja.seznamStrank;
+    //console.log(polja);
+    //console.log(zahteva.state);
     //
     odgovor.redirect('/')
   });
@@ -256,7 +255,7 @@ streznik.post('/stranka', function(zahteva, odgovor) {
 // Odjava stranke
 streznik.post('/odjava', function(zahteva, odgovor) {
     //II. del
-    zahteva.session.stranka = false;
+    zahteva.session.destroy();     //zahteva.session.stranka = false;
     //
     odgovor.redirect('/prijava') 
 })
