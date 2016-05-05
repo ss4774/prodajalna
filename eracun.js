@@ -245,12 +245,12 @@ streznik.post('/stranka', function(zahteva, odgovor) {
     //II. del
     //zahteva.session.regenerate();
     if(zahteva.session.stranka === undefined){
-      zahteva.session.stranka = polja.seznamStrank;
+      zahteva.session.stranka = parseInt(polja.seznamStrank);
     }else{
       delete zahteva.session.kosarica;
       //zahteva.session.destroy();  
       //zahteva.session.regenerate();
-      zahteva.session.stranka = polja.seznamStrank;
+      zahteva.session.stranka = parseInt(polja.seznamStrank);
     }
     //console.log(polja);
     //console.log(zahteva.state);
