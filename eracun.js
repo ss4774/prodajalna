@@ -244,7 +244,14 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   form.parse(zahteva, function (napaka1, polja, datoteke) {
     //II. del
     //zahteva.session.regenerate();
-    zahteva.session.stranka = polja.seznamStrank;
+    if(zahteva.session.stranka === undefined){
+      zahteva.session.stranka = polja.seznamStrank;
+    }else{
+      delete zahteva.session.kosarica;
+      //zahteva.session.destroy();  
+      //zahteva.session.regenerate();
+      zahteva.session.stranka = polja.seznamStrank;
+    }
     //console.log(polja);
     //console.log(zahteva.state);
     //
