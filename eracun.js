@@ -146,6 +146,17 @@ var strankaIzRacuna = function(racunId, callback) {
     })
 }
 
+//IV. del
+// Vrni podrobnosti o stranki iz računa
+var strankaIzID = function(strankaID, callback) {
+    pb.all("SELECT Customer.* FROM Customer WHERE Customer.CustomerId = " + strankaID,
+    function(napaka, vrstice) {
+      //console.log(vrstice);
+      callback(vrstice);
+    })
+}
+//
+
 // Izpis računa v HTML predstavitvi na podlagi podatkov iz baze
 streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
   odgovor.end();
@@ -166,7 +177,7 @@ streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
         vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
         postavkeRacuna: pesmi
       })*/
-      strankaIzRacuna(zahteva.session.strankaId, function(podrobnosti) {
+      strankaIzID(zahteva.session.strankaId, function(podrobnosti) {
           if (!podrobnosti) {
             odgovor.sendStatus(500);
           } else if (podrobnosti.length == 0) {
@@ -182,6 +193,7 @@ streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
           }
          
         })
+      //
     }
   })
 })
@@ -251,9 +263,9 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   
   form.parse(zahteva, function (napaka1, polja, datoteke) {
     //IV. del
-    zahteva.session.strankaId = polja.seznamStrank;
-    console.log(zahteva.session.strankaId);
-    console.log(zahteva.session);
+    zahteva.session.strankaId = parseInt(polja.seznamStrank);
+    ///console.log(zahteva.session.strankaId);
+    ///console.log(zahteva.session);
     //
     odgovor.redirect('/')
   });
