@@ -246,15 +246,25 @@ streznik.post('/prijava', function(zahteva, odgovor) {
       napaka2 = true;
     }
 
-    if(napaka2){
+    /*if(napaka2){
       //document.getElementById("sporocilo").value = "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.";
       odgovor.redirect('/prijava?napaka2=true');
     }else{
       //document.getElementById("sporocilo").value = "Stranka je bila uspešno registrirana.";
-      odgovor.redirect('/prijava?napaka2=false');  
-    }
+      //odgovor.redirect('/prijava?napaka2=false');  
+    }*/
+    var napaka3 = napaka2;
+    vrniStranke(function(napaka1, stranke) {
+      vrniRacune(function(napaka2, racuni) {
+        if(napaka3){
+          odgovor.render('prijava', {sporocilo: "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.", seznamStrank: stranke, seznamRacunov: racuni}); 
+        }else{
+          odgovor.render('prijava', {sporocilo: "Stranka je bila uspešno registrirana.", seznamStrank: stranke, seznamRacunov: racuni}); 
+        }
+        odgovor.end();
+      }) 
+    });
   
-    odgovor.end();
   });
 })
 
@@ -263,15 +273,15 @@ streznik.get('/prijava', function(zahteva, odgovor) {
   
   vrniStranke(function(napaka1, stranke) {
       vrniRacune(function(napaka2, racuni) {
-        //odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
-        var napaka3 = zahteva.query.napaka2;
+        odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        /*var napaka3 = zahteva.query.napaka2;
         if(napaka3 == "true"){
           odgovor.render('prijava', {sporocilo: "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.", seznamStrank: stranke, seznamRacunov: racuni}); 
         }else if(napaka3 == "false"){
           odgovor.render('prijava', {sporocilo: "Stranka je bila uspešno registrirana.", seznamStrank: stranke, seznamRacunov: racuni}); 
         }else{
           odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
-        }
+        }*/
       }) 
     });
 })
