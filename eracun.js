@@ -243,17 +243,18 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   
   form.parse(zahteva, function (napaka1, polja, datoteke) {
     //II. del
-    //zahteva.session.regenerate();
     if(zahteva.session.stranka === undefined){
       zahteva.session.stranka = parseInt(polja.seznamStrank);
     }else{
+      ///console.log(zahteva.session.stranka);console.log(parseInt(polja.seznamStrank));
+      if(zahteva.session.stranka != parseInt(polja.seznamStrank))
       delete zahteva.session.kosarica;
       //zahteva.session.destroy();  
       //zahteva.session.regenerate();
       zahteva.session.stranka = parseInt(polja.seznamStrank);
     }
-    //console.log(polja);
-    //console.log(zahteva.state);
+    ///console.log(polja);
+    ///console.log(zahteva.state);
     //
     odgovor.redirect('/')
   });
