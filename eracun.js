@@ -179,6 +179,17 @@ var strankaIzRacuna = function(racunId, callback) {
     })
 }
 
+//IV. del
+// Vrni podrobnosti o stranki iz računa
+var strankaIzID = function(strankaID, callback) {
+    pb.all("SELECT Customer.* FROM Customer WHERE Customer.CustomerId = " + strankaID,
+    function(napaka, vrstice) {
+      //console.log(vrstice);
+      callback(vrstice);
+    })
+}
+//
+
 // Izpis računa v HTML predstavitvi na podlagi podatkov iz baze
 streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
   //III.del
@@ -233,11 +244,29 @@ streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
       odgovor.send("<p>V košarici nimate nobene pesmi, \
         zato računa ni mogoče pripraviti!</p>");
     } else {
-      odgovor.setHeader('content-type', 'text/xml');
+      // IV. del
+      /*odgovor.setHeader('content-type', 'text/xml');
       odgovor.render('eslog', {
         vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
         postavkeRacuna: pesmi
-      })  
+      })*/
+      strankaIzID(zahteva.session.stranka, function(podrobnosti) {
+          if (!podrobnosti) {
+            odgovor.sendStatus(500);
+          } else if (podrobnosti.length == 0) {
+            odgovor.send("<p>V košarici nimate nobene pesmi, \
+              zato računa ni mogoče pripraviti!</p>");
+          } else {
+              odgovor.setHeader('content-type', 'text/xml');
+              odgovor.render('eslog', {
+                vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
+                postavkeRacuna: pesmi,
+                postavkeRacunaPodrobnosti: podrobnosti
+              })
+          }
+         
+        })
+      //
     }
   })
 })
@@ -360,7 +389,7 @@ streznik.post('/stranka', function(zahteva, odgovor) {
   var form = new formidable.IncomingForm();
   
   form.parse(zahteva, function (napaka1, polja, datoteke) {
-    //II. del
+    //II. + IV. del
     if(zahteva.session.stranka === undefined){
       zahteva.session.stranka = parseInt(polja.seznamStrank);
     }else{
