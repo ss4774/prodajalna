@@ -146,7 +146,17 @@ var pesmiIzRacuna = function(racunId, callback) {
     Track.TrackId IN (SELECT InvoiceLine.TrackId FROM InvoiceLine, Invoice \
     WHERE InvoiceLine.InvoiceId = Invoice.InvoiceId AND Invoice.InvoiceId = " + racunId + ")",
     function(napaka, vrstice) {
-      console.log(vrstice);
+      //III.del
+      //console.log(vrstice);
+      if (napaka) {
+        callback(false);
+      } else {
+        for (var i=0; i<vrstice.length; i++) {
+          vrstice[i].stopnja = davcnaStopnja((vrstice[i].opisArtikla.split(' (')[1]).split(')')[0], vrstice[i].zanr);
+        }
+        callback(vrstice);
+      }
+      //
     })
 }
 
@@ -155,13 +165,63 @@ var strankaIzRacuna = function(racunId, callback) {
     pb.all("SELECT Customer.* FROM Customer, Invoice \
             WHERE Customer.CustomerId = Invoice.CustomerId AND Invoice.InvoiceId = " + racunId,
     function(napaka, vrstice) {
-      console.log(vrstice);
+      //III.del
+      //console.log(vrstice);
+      if (napaka) {
+        callback(false);
+      } else {
+        /*for (var i=0; i<vrstice.length; i++) {
+          vrstice[i].stopnja = davcnaStopnja((vrstice[i].opisArtikla.split(' (')[1]).split(')')[0], vrstice[i].zanr);
+        }*/
+        callback(vrstice);
+      }
+      //
     })
 }
 
 // Izpis računa v HTML predstavitvi na podlagi podatkov iz baze
 streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
-  odgovor.end();
+  //III.del
+  //odgovor.redirect('/prijava?napaka2=true');
+  
+  var form = new formidable.IncomingForm();
+  
+  form.parse(zahteva, function (napaka1, polja, datoteke) {
+    var id = polja.seznamRacunov;
+    ///console.log(id);
+    ///odgovor.redirect('/')
+    ///strankaIzRacuna(id, function(podrobnosti) {})
+    pesmiIzRacuna(id, function(pesmi) {
+      ///console.log(pesmi);
+      if (!pesmi) {
+        odgovor.sendStatus(500);
+      } else if (pesmi.length == 0) {
+        odgovor.send("<p>V košarici nimate nobene pesmi, \
+          zato računa ni mogoče pripraviti!</p>");
+      } else {
+        ///console.log("yes");
+        strankaIzRacuna(id, function(podrobnosti) {
+          ///console.log(podrobnosti);
+          if (!podrobnosti) {
+            odgovor.sendStatus(500);
+          } else if (podrobnosti.length == 0) {
+            odgovor.send("<p>V košarici nimate nobene pesmi, \
+              zato računa ni mogoče pripraviti!</p>");
+          } else {
+              odgovor.setHeader('content-type', 'text/xml');
+              odgovor.render('eslog', {
+                vizualiziraj: true,
+                postavkeRacuna: pesmi,
+                postavkeRacunaPodrobnosti: podrobnosti
+              })
+          }
+          ///odgovor.redirect("/");
+          //odgovor.end(); //odkomentiraj, virtualizacija asinhrono..se prej lahko pozene
+        })
+      }
+    })
+  });
+  //
 })
 
 // Izpis računa v HTML predstavitvi ali izvorni XML obliki
